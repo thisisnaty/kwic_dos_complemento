@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -6,14 +5,17 @@
 using namespace std;
 
 int main() {
+//SE DECLARA UN VECTOR DE FRASES QUE GUARDA TODAS LAS FRASES DEL DOCUMENTO
+vector<string> phrases;
+string phrase;
+//SE DECLARA UN VECTOR DE STOPWORDS QUE GUARDA TODAS LAS PALABRAS A BORRAR DE LAS FRASES
+vector<string> stopWords;
+string stopWord;
 
 //DECLARACION DE NOMBRES DE ARCHIVOS
   string archiFrases;
   string archiStopWords;
   char ordenamiento;
-
-//SE DECLARA EL ARCHIVO DONDE SE ESCRIBIRAN LOS RESULTADOS
-  ofstream output_file ("results.txt");
 
 //INPUT DEL ARCHIVO QUE CONTIENE LAS FRASES A MANIPULAR
   cout<< "Ingrese el nombre del archivo con las frases de input con el formato 'nombre.txt':\n"<<endl;
@@ -21,11 +23,19 @@ int main() {
   ifstream input_file;
   input_file.open (archiFrases); //INTENTA ABRIR EL ARCHIVO
   //SI NO ESTA EN EL DIRECTORIO, PIDE QUE INGRESE UN ARCHIVO VALIDO
-  while(!input_file.is_open()){
+  if(!input_file.is_open()){
       cout<<"Por favor ingrese un archivo valido. Revise si esta bien escrito\n";
       cin>> archiFrases;
       input_file.open (archiFrases);
   }
+  else{
+     while(getline (input_file, phrase)){
+         phrases.push_back(phrase);
+     }
+    //SE CIERRA ARCHIVO
+    input_file.close();
+  }
+
 
 //INPUT DEL ARCHIVO QUE CONTIENE LAS STOPWORDS A ELIMINAR
   cout<< "Ingrese el nombre del archivo que contiene las palabras que se desean omitir en el formato 'nombre.txt':\n"<<endl;
@@ -33,29 +43,31 @@ int main() {
   ifstream stopWords_file;
   stopWords_file.open (archiStopWords); //INTENTA ABRIR EL ARCHIVO
   //SI NO ESTA EN EL DIRECTORIO, PIDE QUE INGRESE UN ARCHIVO VALIDO
-  while(!stopWords_file.is_open()){
+  if(!stopWords_file.is_open()){
       cout<<"Por favor ingrese un archivo valido. Revise si esta bien escrito\n";
       cin>> archiStopWords;
       stopWords_file.open (archiStopWords);
+  }
+  else{
+      while(getline (stopWords_file, phrase)){
+          stopWords.push_back(stopWord);
+      }
+    //SE CIERRA ARCHIVO
+    stopWords_file.close();
   }
 
 //INPUT DEL TIPO DE ORDENAMIENTO A REALIZAR
   cout<< "Desea que el ordenamiento sea incremental('i') o decremental('d')?\n";
   cin>> ordenamiento;
-  
+//VALIDACION DE QUE LA INFORMACION SEA CORRECTA PARA REALIZAR LAS OPERACIONES
   while(ordenamiento != 'i' && ordenamiento != 'd') {
       cout<<"Por favor ingrese el tipo de ordenamiento con el formato 'i'/'d'.\n";
       cin>> ordenamiento;
       cout << ordenamiento << endl;
   }
-
-//WRITING ON FILES AS TEST
-  output_file << "my text here!\n";
-
-//SE CIERRAN LOS ARCHIVOS
-  input_file.close();
-  stopWords_file.close();
-  output_file.close();
+//SE CREA UNA INSTANCIA DE LA CLASE ROTATOR
+Rotator r(phrases,stopWords,ordenamiento);
+r.results();
 
     return 0;
 }
