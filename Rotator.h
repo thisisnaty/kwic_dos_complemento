@@ -1,96 +1,123 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <list>
+#include <algorithm>
+#include "utility.h"
 using namespace std;
 
-vector<string> explode(string del, string str) {
-	int slen = str.length();
-	int dlen = del.length();
-	int found_a;
-	string before;
-	vector<string> final;
-	vector<string> fail (0);
-	if(dlen == 0) return fail;
-	if(slen == 0) return fail;
-	for(int counter = 0; counter < slen; counter ++)
-	{
-		found_a = str.find(del);
-		if(found_a != string::npos)
-		{
-			before = str.substr(0, found_a + dlen);
-			final.push_back(before);
-			str.replace(0, found_a + dlen, "");
-		}
-		else
-		{
-			if(str.length() > 0)
-			{
-				final.push_back(str);
-				str.replace(0, str.length(), "");
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-	return final;
-}
+class Rotator
+{
+  private:
+    vector<string> phrases;
+    vector<string> stop_words;
+    bool ascending;
 
-void rtrim(string& s, char c) {
-	if (s.empty())
-		return;
-	std::string::iterator p;
-	for (p = s.end(); p != s.begin() && *--p == c;)
-		if (*p != c)
-			p++;
-	s.erase(p, s.end());
-}
+    //PASO 1: LIMPIAR FRASES
+    void limpiar()
+    {
+        vector<char> puntuacion = {'.', ',', '"', '?', '!'};
+        for (int i = 0; i < phrases.size(); i++)
+        {
+            for (int j = 0; j < puntuacion.size(); j++)
+            {
+                while (phrases[i].find(puntuacion[j]) != -1)
+                {
+                    phrases[i].erase(phrases[i].find(puntuacion[j]), 1);
+                }
+            }
+        }
+    }
 
-string list_to_str(list<string> &l) {
-	list<string>::iterator iter;
-	string s = "";
-	for(iter = l.begin(); iter != l.end(); iter++) {
-		s = s + *iter + " ";
-	}
-	return s;
-}
+    //PASO 2: QUITAR STOP WORDS Y DESPUES HACER LOWER CASE
+    void delete_stop_words()
+    {
+        for (int i = 0; i < phrases.size(); i++)
+        {
+            string old_phrase = phrases[i];
+            transform(old_phrase.begin(), old_phrase.end(), old_phrase.begin(), ::tolower);
+            vector<string> words = Utility::get_words(old_phrase);
+            for (int j = 0; j < stop_words.size(); j++)
+            {
+                string stop = stop_words[j];
+                transform(stop.begin(), stop.end(), stop.begin(), ::tolower);
+                vector<string>::iterator result = find(words.begin(), words.end(), stop);
+                if (result != words.end())
+                {
+                    words.erase(result);
+                }
+            }
+            phrases[i] = Utility::get_sentence(words);
+        }
+    }
 
-class Rotator {
-	private:
-		vector<string> phrase;
-	public:
-		vector<string> getRotations(vector<string> &phrase);
-		Rotator(vector<string> &phrase);
+    //PASO 3: ROTAR (TODAS LAS PERMUTACIONES)
+    vector<string> rotate()
+    {
+        vector<string> rotations, words;
+        string old_phrase, new_phrase, word;
+        for (int i = 0; i < phrases.size(); i++)
+        {
+            old_phrase = phrases[i];
+            words = Utility::get_words(old_phrase);
+
+            //REALIZA UNA ROTACION POR PALABRA
+            for (int j = 0; j < words.size(); j++)
+            {
+                word = words.back();
+                words.insert(words.begin(), word);
+                words.pop_back();
+                //METE CADA PERMUTACION DE LA FRASE EN UN NUEVO VECTOR
+                new_phrase = Utility::get_sentence(words);
+                rotations.push_back(new_phrase);
+            }
+        }
+        return rotations;
+    }
+
+  public:
+    Rotator(vector<string> frases, vector<string> delete_words, bool asc)
+    {
+        phrases = frases;
+        stop_words = delete_words;
+        ascending = asc;
+    }
+
+    void setAscending(bool asc)
+    {
+        ascending = asc;
+    }
+
+    void setPhrases(vector<string> frases)
+    {
+        phrases = frases;
+    }
+
+    void setStopWords(vector<string> delete_words)
+    {
+        stop_words = delete_words;
+    }
+
+    //PASO 5: ESCRIBIR RESULTADOS EN UN ARCHIVO
+    void results()
+    {
+        limpiar();
+        delete_stop_words();
+        vector<string> rotations = rotate();
+        if (ascending)
+        {
+            sort(rotations.begin(), rotations.end());
+        }
+        else
+        {
+            sort(rotations.begin(), rotations.end(), greater<string>());
+        }
+        //SE DECLARA EL ARCHIVO DONDE SE ESCRIBIRAN LOS RESULTADOS
+        ofstream output_file("results.txt");
+        //WRITING ON FILES AS TEST
+        std::ostream_iterator<std::string> output_iterator(output_file, "\n");
+        std::copy(rotations.begin(), rotations.end(), output_iterator);
+        //SE CIERRA ARCHIVO
+        output_file.close();
+    }
 };
-
-Rotator::Rotator(vector<string> &phrase) {
-}
-
-vector<string> Rotator::getRotations(vector<string> &phrase) {
-	vector<string> rotations;
-	vector<string>::iterator phrase_iter;
-	for(phrase_iter = phrase.begin(); phrase_iter != phrase.end(); phrase_iter++) {
-		vector<string> words_vector = explode(" ", *phrase_iter);
-		vector<string>::iterator words_iter;
-		list<string> words_list;
-		for (words_iter = words_vector.begin(); words_iter != words_vector.end(); words_iter++) {
-			rtrim(*words_iter, ' ');
-			words_list.push_back(*words_iter);
-		}
-
-		string rotation;
-		do {
-			string first_word = words_list.front();
-			words_list.push_back(first_word);
-			words_list.pop_front();
-			rotation = list_to_str(words_list);
-			rtrim(rotation, ' ');
-			if(rotation != *phrase_iter) {
-				rotations.push_back(rotation);
-			}
-		} while(rotation != *phrase_iter);
-	}
-
-	return rotations;
-}
