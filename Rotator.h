@@ -11,6 +11,7 @@ class Rotator
   private:
     vector<string> phrases;
     vector<string> stop_words;
+    vector<string> result;
     bool ascending;
 
     //PASO 1: LIMPIAR FRASES
@@ -98,25 +99,30 @@ class Rotator
         stop_words = delete_words;
     }
 
+    int getResultSize()
+    {
+        return result.size();
+    }
+
     //PASO 5: ESCRIBIR RESULTADOS EN UN ARCHIVO
     void results()
     {
         limpiar();
         delete_stop_words();
-        vector<string> rotations = rotate();
+        result = rotate();
         if (ascending)
         {
-            sort(rotations.begin(), rotations.end());
+            sort(result.begin(), result.end());
         }
         else
         {
-            sort(rotations.begin(), rotations.end(), greater<string>());
+            sort(result.begin(), result.end(), greater<string>());
         }
         //SE DECLARA EL ARCHIVO DONDE SE ESCRIBIRAN LOS RESULTADOS
         ofstream output_file("results.txt");
         //WRITING ON FILES AS TEST
         std::ostream_iterator<std::string> output_iterator(output_file, "\n");
-        std::copy(rotations.begin(), rotations.end(), output_iterator);
+        std::copy(result.begin(), result.end(), output_iterator);
         //SE CIERRA ARCHIVO
         output_file.close();
     }

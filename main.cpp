@@ -80,6 +80,7 @@ int main()
         {
             r.results();
             cout << "Los resultados se encuentran en el archivo 'results.txt'" << endl;
+            cout << "Tamaño del resultado: " << r.getResultSize() << " frases" << endl;
         }
         menu();
         cin >> menu_option;
