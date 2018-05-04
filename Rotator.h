@@ -41,7 +41,7 @@ void rtrim(string& s, char c) {
 	if (s.empty())
 		return;
 	std::string::iterator p;
-	for (p = s.end(); p != s.begin() && *--p == c;);
+	for (p = s.end(); p != s.begin() && *--p == c;)
 		if (*p != c)
 			p++;
 	s.erase(p, s.end());
@@ -91,8 +91,6 @@ vector<string> Rotator::getRotations(vector<string> &phrase) {
 			}
 		} while(rotation != *phrase_iter);
 	}
-	
+
 	return rotations;
 }
-
-

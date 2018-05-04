@@ -92,7 +92,7 @@ public:
     }
     //PASO 4: ORDENAR SEGUN ORDENAMIENTO INDICADO
     void order(vector<string> rotations){
-        
+
     }
     //PASO 5: ESCRIBIR RESULTADOS EN UN ARCHIVO
     void results(){
@@ -103,7 +103,8 @@ public:
         //SE DECLARA EL ARCHIVO DONDE SE ESCRIBIRAN LOS RESULTADOS
         ofstream output_file ("results.txt");
         //WRITING ON FILES AS TEST
-        output_file << "my text here!\n";
+        std::ostream_iterator<std::string> output_iterator(output_file, "\n");
+        std::copy(rotations.begin(), rotations.end(), output_iterator);
         //SE CIERRA ARCHIVO
         output_file.close();
     }

@@ -63,7 +63,6 @@ string stopWord;
   while(ordenamiento != 'i' && ordenamiento != 'd') {
       cout<<"Por favor ingrese el tipo de ordenamiento con el formato 'i'/'d'.\n";
       cin>> ordenamiento;
-      cout << ordenamiento << endl;
   }
 //SE CREA UNA INSTANCIA DE LA CLASE ROTATOR
 Rotator r(phrases,stopWords,ordenamiento);
